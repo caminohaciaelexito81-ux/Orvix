@@ -44,7 +44,7 @@ command -v netfilter-persistent >/dev/null || apt-get install -y iptables-persis
 #    Se abren el 80 y el 443 justo antes de la regla que rechaza todo, y se guarda.
 for P in 80 443; do
   if ! iptables -C INPUT -p tcp --dport "$P" -m state --state NEW -j ACCEPT 2>/dev/null; then
-    N=$(iptables -L INPUT --line-numbers -n | awk '$2=="REJECT"{print $1; exit}')
+    N=$(iptables -L INPUT --line-numbers -n | awk '$2=="REJECT" && !n {n=$1} END {print n}')
     if [ -n "$N" ]; then iptables -I INPUT "$N" -p tcp --dport "$P" -m state --state NEW -j ACCEPT
     else iptables -A INPUT -p tcp --dport "$P" -m state --state NEW -j ACCEPT; fi
   fi

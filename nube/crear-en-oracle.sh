@@ -195,30 +195,48 @@ imagen() {   # Ubuntu (24.04 o 22.04, no "Minimal") compatible con el tipo de se
 verde "4/5 Creando el servidor gratis…"
 ADS=$(oci iam availability-domain list -c "$C" 2>/dev/null | jq -r '.data[].name')
 I=""
-for FORMA in VM.Standard.A1.Flex VM.Standard.E2.1.Micro; do
-  IMG=$(imagen "$FORMA")
-  [ -n "$IMG" ] || continue
-  EXTRA=(); [ "$FORMA" = VM.Standard.A1.Flex ] && EXTRA=(--shape-config '{"ocpus":2,"memoryInGBs":12}')
-  for AD in $ADS; do
-    echo "   Probando $FORMA en $AD…"
-    if SALIDA=$(oci compute instance launch -c "$C" --availability-domain "$AD" --shape "$FORMA" "${EXTRA[@]}" \
-        --image-id "$IMG" --subnet-id "$S" --assign-public-ip true --display-name "$NOMBRE" \
-        --boot-volume-size-in-gbs 50 --ssh-authorized-keys-file "$LLAVE.pub" --user-data-file "$DATOS_INICIO" \
-        --freeform-tags "{\"orvix-codigo\":\"$CODIGO\"}" \
-        --wait-for-state RUNNING --max-wait-seconds 900 2>&1); then
-      I=$(echo "$SALIDA" | grep -o 'ocid1\.instance\.[a-z0-9._-]*' | head -n 1 || true)
-      [ -n "$I" ] && break 2
-    fi
-    if echo "$SALIDA" | grep -i 'capacity' >/dev/null; then echo "   (Oracle no tiene cupo ahí, pruebo otro)"
-    elif echo "$SALIDA" | grep -iE 'LimitExceeded|limit' >/dev/null; then echo "   (tu cuenta no permite ese tipo, pruebo otro)"
-    else echo "$SALIDA" | tail -n 5; fi
+# Opciones gratis, de mejor a más fácil de conseguir. Oracle suele no tener cupo de Arm:
+# se insiste varias rondas (1 por minuto). El tamaño pequeño de Arm sale más fácil.
+OPCIONES=("VM.Standard.A1.Flex 2 12" "VM.Standard.A1.Flex 1 6" "VM.Standard.E2.1.Micro 0 0")
+declare -A NO_SIRVE=() IMAGENES=()
+RONDAS="${ORVIX_RONDAS:-30}"
+for RONDA in $(seq 1 "$RONDAS"); do
+  echo "   Intento $RONDA de $RONDAS…"
+  for OPC in "${OPCIONES[@]}"; do
+    read -r FORMA NUCLEOS MEMORIA <<<"$OPC"
+    [ -n "${NO_SIRVE[$FORMA]:-}" ] && continue
+    [ -n "${IMAGENES[$FORMA]:-}" ] || IMAGENES[$FORMA]=$(imagen "$FORMA")
+    IMG="${IMAGENES[$FORMA]}"
+    [ -n "$IMG" ] || { NO_SIRVE[$FORMA]=1; continue; }
+    EXTRA=(); [ "$NUCLEOS" != 0 ] && EXTRA=(--shape-config "{\"ocpus\":$NUCLEOS,\"memoryInGBs\":$MEMORIA}")
+    for AD in $ADS; do
+      if SALIDA=$(oci compute instance launch -c "$C" --availability-domain "$AD" --shape "$FORMA" "${EXTRA[@]}" \
+          --image-id "$IMG" --subnet-id "$S" --assign-public-ip true --display-name "$NOMBRE" \
+          --boot-volume-size-in-gbs 50 --ssh-authorized-keys-file "$LLAVE.pub" --user-data-file "$DATOS_INICIO" \
+          --freeform-tags "{\"orvix-codigo\":\"$CODIGO\"}" \
+          --wait-for-state RUNNING --max-wait-seconds 900 2>&1); then
+        I=$(echo "$SALIDA" | grep -o 'ocid1\.instance\.[a-z0-9._-]*' | head -n 1 || true)
+        [ -n "$I" ] && break 3
+      fi
+      if echo "$SALIDA" | grep -i 'capacity' >/dev/null; then
+        echo "     $FORMA ${NUCLEOS}/${MEMORIA}GB: Oracle no tiene cupo ahora"
+      else
+        # Otro motivo (la región no tiene ese tipo, límite de la cuenta…): no volver a probarlo.
+        MSG=$(echo "$SALIDA" | grep -m 1 '"message"' | sed 's/.*"message": *"\(.*\)".*/\1/' || true)
+        echo "     $FORMA no está disponible para tu cuenta aquí (${MSG:-sin detalle}); lo salto"
+        NO_SIRVE[$FORMA]=1
+      fi
+    done
   done
+  if [ "${#NO_SIRVE[@]}" -ge 2 ] && [ -n "${NO_SIRVE[VM.Standard.A1.Flex]:-}" ]; then break; fi
+  if [ "$RONDA" -lt "$RONDAS" ]; then sleep 60; fi
 done
 rm -f "$DATOS_INICIO"
 if [ -z "$I" ]; then
-  rojo "Oracle no tiene servidores gratis disponibles en este momento. Es normal: vuelve a pegar el mismo comando en 1 o 2 horas (no crea nada repetido)."
+  rojo "Oracle no tuvo servidores gratis libres en estos $RONDAS minutos. Es normal en Oracle: vuelve a pegar el mismo comando más tarde (mejor de noche o de madrugada). No crea nada repetido."
   exit 1
 fi
+echo "   ✔ Servidor creado: $FORMA"
 [ "$FORMA" = VM.Standard.E2.1.Micro ] && echo "   (Quedó en el servidor pequeño de 1 GB: aguanta 1 o 2 WhatsApp.)"
 
 verde "5/5 Esperando a que se instale…"
