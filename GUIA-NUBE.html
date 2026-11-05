@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ORVIX QR en la nube</title>
+<style>
+  :root { --fondo:#f3f6f9; --panel:#fff; --texto:#17212f; --suave:#55657a; --borde:#e3e9ef; --turq:#0d9488; --turq2:#12b5a6; --marino:#0f1b2d; --aviso:#fff7e6; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fondo); color:var(--texto); font:15px/1.6 "Segoe UI", system-ui, sans-serif; }
+  header { background:var(--marino); color:#fff; padding:34px 20px 30px; }
+  header .in, main { max-width:860px; margin:0 auto; }
+  header h1 { margin:0 0 6px; font-size:28px; }
+  header p { margin:0; color:#b9c6d6; }
+  main { padding:24px 16px 60px; }
+  .parte { background:var(--panel); border:1px solid var(--borde); border-left:4px solid var(--turq); border-radius:14px; padding:20px 22px; margin-bottom:20px; }
+  .parte h2 { margin:0 0 4px; font-size:19px; }
+  .parte > p.sub { margin:0 0 14px; color:var(--suave); }
+  ol { padding-left:22px; margin:0; } li { margin:8px 0; }
+  b.boton { background:#eef2f6; border:1px solid var(--borde); border-radius:6px; padding:0 6px; font-weight:600; white-space:nowrap; }
+  .datos { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 18px; }
+  .datos label { font-size:13px; font-weight:600; color:var(--suave); }
+  .datos input { width:100%; padding:10px 12px; border:1.5px solid #99e6da; border-radius:10px; font:inherit; margin-top:4px; }
+  .cmd { position:relative; background:#0f1b2d; color:#d6f5ef; border-radius:10px; padding:14px 90px 14px 16px; font:13px/1.55 Consolas, monospace; word-break:break-all; margin:10px 0; }
+  .cmd button { position:absolute; top:10px; right:10px; border:0; border-radius:8px; background:var(--turq2); color:#fff; font-weight:600; padding:6px 12px; cursor:pointer; }
+  .nota { background:var(--aviso); border:1px solid #f3d27a; border-radius:10px; padding:10px 14px; margin:12px 0; font-size:14px; }
+  .bien { background:#ecfdf8; border:1px solid #a7f3d0; border-radius:10px; padding:10px 14px; margin:12px 0; font-size:14px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; margin-top:8px; }
+  td { padding:9px 10px; border-bottom:1px solid var(--borde); vertical-align:top; }
+  td:first-child { font-weight:600; width:38%; }
+  @media (max-width:640px) { .datos { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>ORVIX QR en la nube (Google Cloud)</h1>
+  <p>Tu CRM encendido las 24 horas, sin depender de tu PC. Son 4 partes y toma unos 30 minutos la primera vez.</p>
+</div></header>
+<main>
+
+  <div class="parte">
+    <h2>Antes de empezar: escribe tus datos</h2>
+    <p class="sub">Con esto la guía arma los comandos por ti, listos para copiar.</p>
+    <div class="datos">
+      <div><label>Tu usuario de GitHub</label><input id="usuario" placeholder="por ejemplo: jeffersonsit" autocomplete="off"></div>
+      <div><label>Nombre del repositorio</label><input id="repo" value="orvix-crm" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <div class="parte">
+    <h2>1. Subir el programa a GitHub</h2>
+    <p class="sub">GitHub guarda el código. Google Cloud lo descarga de ahí.</p>
+    <ol>
+      <li>En la carpeta <b>CRM</b>, doble clic en <b class="boton">PREPARAR-PARA-GITHUB.bat</b>. Se abre la carpeta <b>para-github</b>.</li>
+      <li>Entra a <b>github.com</b> → botón verde <b class="boton">New</b> (nuevo repositorio).</li>
+      <li>En <b>Repository name</b> escribe el nombre de arriba (<span class="v-repo">orvix-crm</span>). Marca <b>Public</b> y pulsa <b class="boton">Create repository</b>.</li>
+      <li>En la página que aparece, haz clic en <b>uploading an existing file</b>.</li>
+      <li>Abre la carpeta <b>para-github</b>, selecciona <b>todo lo que hay dentro</b> (Ctrl + A) y arrástralo a la página de GitHub.</li>
+      <li>Espera a que suba todo y pulsa <b class="boton">Commit changes</b>.</li>
+    </ol>
+    <div class="nota"><b>¿Por qué público?</b> Así Google Cloud lo descarga sin claves. El código no lleva tus datos: tus chats, ventas, contraseña y la sesión de WhatsApp nunca se suben. Si prefieres privado, mira el final de esta guía.</div>
+  </div>
+
+  <div class="parte">
+    <h2>2. Preparar tus datos para llevarlos</h2>
+    <p class="sub">Así en la nube sigues con lo que ya tienes: el WhatsApp vinculado, tus flujos, chats, contactos, ventas, archivos, la configuración y tu contraseña.</p>
+    <ol>
+      <li><b>Cierra el CRM de tu PC</b> (la ventana negra).</li>
+      <li>En la carpeta <b>CRM</b>, doble clic en <b class="boton">HACER-RESPALDO-PARA-LA-NUBE.bat</b>. Se crea el archivo <b>orvix-respaldo.tar.gz</b> y se abre la carpeta donde quedó.</li>
+    </ol>
+    <div class="nota"><b>Ese archivo es privado:</b> lleva tu WhatsApp y tu contraseña. No lo subas a GitHub ni se lo envíes a nadie. Solo va a Cloud Shell, en el paso 3.<br><br>
+    <b>Desde aquí, no vuelvas a abrir el CRM de tu PC.</b> Si el de la PC y el de la nube se encienden a la vez con el mismo WhatsApp, se desconectan los dos. Si lo abres sin querer, <b>INICIAR.bat</b> te avisa antes.</div>
+  </div>
+
+  <div class="parte">
+    <h2>3. Crear el servidor en Google Cloud</h2>
+    <p class="sub">Se usa el servidor gratis de Google (e2-micro). Google pide una tarjeta para verificar tu identidad.</p>
+    <ol>
+      <li>Entra a <b>console.cloud.google.com</b> con tu Gmail y acepta las condiciones.</li>
+      <li>Si te lo pide, activa la cuenta con tu tarjeta (incluye la prueba gratis). <b>Esto lo haces tú.</b></li>
+      <li>Arriba a la izquierda, junto al logo, pulsa el selector de proyectos → <b class="boton">Proyecto nuevo</b> → nombre <b>orvix</b> → <b class="boton">Crear</b>. Luego elígelo en ese mismo selector.</li>
+      <li>Arriba a la derecha pulsa el ícono <b class="boton">&gt;_</b> (<b>Activar Cloud Shell</b>). Abajo se abre una ventana negra.</li>
+      <li><b>Sube tu respaldo:</b> en la barra de la ventana negra pulsa los tres puntos <b class="boton">⋮</b> → <b class="boton">Subir</b> (Upload) → <b>Elegir archivos</b> → elige <b>orvix-respaldo.tar.gz</b> → <b class="boton">Subir</b>. Espera a que diga que terminó.</li>
+      <li>Copia este comando, pégalo en la ventana negra (clic derecho → Pegar) y pulsa Enter:
+        <div class="cmd"><span id="cmd-crear"></span><button data-copiar="cmd-crear">Copiar</button></div></li>
+      <li>Si aparece <b>Autorizar Cloud Shell</b>, pulsa <b class="boton">Autorizar</b>.</li>
+      <li>Espera de 5 a 8 minutos. El comando encuentra tu respaldo solo y lo pasa al servidor. Si te pregunta algo con <b>(Y/n)</b>, escribe <b>Y</b> y Enter. Al final verás:
+        <div class="bien">✅ Tus datos ya están en la nube<br>Entra con la MISMA contraseña que usabas en tu PC.<br>Dirección del panel: https://…sslip.io</div>
+        <b>Copia la dirección y guárdala.</b></li>
+    </ol>
+    <div class="nota">Si no subiste respaldo, verás <b>✅ TU CRM ESTÁ EN LA NUBE</b> con un <b>código de instalación</b>: el CRM empieza vacío. Para pasar tus datos después, sube el respaldo (⋮ → Subir) y pega:
+      <div class="cmd"><span id="cmd-datos"></span><button data-copiar="cmd-datos">Copiar</button></div></div>
+  </div>
+
+  <div class="parte">
+    <h2>4. Entrar</h2>
+    <ol>
+      <li>Abre la <b>dirección del panel</b> en tu navegador (funciona en PC y celular).</li>
+      <li>Entra con <b>tu contraseña de siempre</b> (la del CRM de tu PC).</li>
+      <li>Ve a <b>Conectar</b>: en 1 o 2 minutos tu WhatsApp aparece <b>conectado</b> solo. Si no se conecta, pulsa <b class="boton">Iniciar bot</b> y escanea el QR otra vez (<b>Dispositivos vinculados</b>).</li>
+      <li>Revisa que estén tus flujos, chats y archivos. Listo: ya puedes apagar tu PC. El bot sigue trabajando en la nube.</li>
+    </ol>
+    <div class="nota">Si empezaste vacío (sin respaldo): escribe el <b>código de instalación</b>, crea tu contraseña (mínimo 8 letras o números) y escanea el QR.</div>
+  </div>
+
+  <div class="parte">
+    <h2>Después: el día a día</h2>
+    <p class="sub">Todo se hace desde Cloud Shell (el ícono <b>&gt;_</b>), en el proyecto <b>orvix</b>.</p>
+    <table>
+      <tr><td>Subí cambios nuevos a GitHub y quiero que el servidor los use</td><td><div class="cmd"><span id="cmd-act"></span><button data-copiar="cmd-act">Copiar</button></div>El servidor se reinicia (1 o 2 minutos). WhatsApp se vuelve a conectar solo y tus datos no se tocan.</td></tr>
+      <tr><td>Quiero volver a pasar los datos de mi PC (reemplaza los de la nube; guarda una copia de los anteriores en el servidor)</td><td>Haz un respaldo nuevo, súbelo con ⋮ → Subir y pega:<div class="cmd"><span id="cmd-datos2"></span><button data-copiar="cmd-datos2">Copiar</button></div></td></tr>
+      <tr><td>Olvidé la dirección o el código</td><td><div class="cmd"><span id="cmd-ver"></span><button data-copiar="cmd-ver">Copiar</button></div></td></tr>
+      <tr><td>Algo no funciona</td><td><div class="cmd"><span id="cmd-reg"></span><button data-copiar="cmd-reg">Copiar</button></div>Copia lo que salga y envíamelo.</td></tr>
+    </table>
+    <div class="nota">Si Cloud Shell dice que no encuentra el archivo, vuelve a pegar primero el comando del paso 3: no crea otro servidor, solo vuelve a descargar el archivo.</div>
+  </div>
+
+  <div class="parte">
+    <h2>Lo que cuesta</h2>
+    <table>
+      <tr><td>Servidor e2-micro (Iowa) y disco de 30 GB</td><td>Gratis para siempre dentro de los límites de Google (1 servidor así por cuenta).</td></tr>
+      <tr><td>Dirección IP pública</td><td>Google no lo deja claro: algunas cuentas la ven gratis y otras pagan unos US$3 al mes. Revisa tu factura el primer mes.</td></tr>
+      <tr><td>Candado https y dirección sslip.io</td><td>Gratis.</td></tr>
+    </table>
+    <div class="bien"><b>Recomendado:</b> en el menú ☰ → <b>Facturación</b> → <b>Presupuestos y alertas</b> → <b>Crear presupuesto</b> de US$1. Así Google te avisa por correo si algo empieza a cobrar.</div>
+    <div class="nota">Si apagas y vuelves a encender el servidor, la dirección puede cambiar. Usa el comando «Olvidé la dirección» para ver la nueva. WhatsApp sigue vinculado.</div>
+  </div>
+
+  <div class="parte">
+    <h2>Opcional: repositorio privado</h2>
+    <ol>
+      <li>En GitHub: tu foto → <b>Settings</b> → <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b class="boton">Generate new token</b>.</li>
+      <li>En <b>Repository access</b> elige solo tu repositorio. En <b>Permissions → Contents</b> elige <b>Read-only</b>. Créalo y copia el token (empieza con <b>github_pat_</b>).</li>
+      <li>En el paso 3 usa este comando y cambia <b>TU_TOKEN</b> por el token:
+        <div class="cmd"><span id="cmd-priv"></span><button data-copiar="cmd-priv">Copiar</button></div></li>
+    </ol>
+  </div>
+
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  function armar() {
+    const u = $('usuario').value.trim() || 'TU_USUARIO', r = $('repo').value.trim() || 'orvix-crm', rep = `${u}/${r}`;
+    const bajar = `curl -fsSLO https://raw.githubusercontent.com/${rep}/HEAD/nube/crear-en-google-cloud.sh`;
+    $('cmd-crear').textContent = `${bajar} && bash crear-en-google-cloud.sh ${rep}`;
+    $('cmd-act').textContent = 'bash crear-en-google-cloud.sh actualizar';
+    $('cmd-datos').textContent = $('cmd-datos2').textContent = 'bash crear-en-google-cloud.sh subir-datos';
+    $('cmd-ver').textContent = 'bash crear-en-google-cloud.sh ver';
+    $('cmd-reg').textContent = 'bash crear-en-google-cloud.sh registro';
+    $('cmd-priv').textContent = `curl -fsSLO -H "Authorization: Bearer TU_TOKEN" https://raw.githubusercontent.com/${rep}/HEAD/nube/crear-en-google-cloud.sh && bash crear-en-google-cloud.sh ${rep} TU_TOKEN`;
+    document.querySelectorAll('.v-repo').forEach(e => { e.textContent = r; });
+    try { localStorage.setItem('orvix-guia', JSON.stringify({ u: $('usuario').value, r: $('repo').value })); } catch {}
+  }
+  try { const g = JSON.parse(localStorage.getItem('orvix-guia') || '{}'); if (g.u) $('usuario').value = g.u; if (g.r) $('repo').value = g.r; } catch {}
+  $('usuario').oninput = $('repo').oninput = armar;
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-copiar]'); if (!b) return;
+    navigator.clipboard.writeText($(b.dataset.copiar).textContent).then(() => { b.textContent = 'Copiado ✓'; setTimeout(() => { b.textContent = 'Copiar'; }, 1500); });
+  });
+  armar();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "xventas-motor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Motor de ORVIX QR: conexión de WhatsApp por QR, flujos, pagos y API del panel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@whiskeysockets/baileys": "7.0.0-rc14",
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4",
+    "tesseract.js": "^5.1.1"
+  }
+}

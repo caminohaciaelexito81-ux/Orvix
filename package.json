@@ -1,0 +1,13 @@
+{
+  "name": "xventas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ORVIX QR: CRM y chatbot de ventas por WhatsApp (conexión por QR)",
+  "scripts": {
+    "postinstall": "npm install --prefix motor --no-audit --no-fund",
+    "start": "node motor/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
