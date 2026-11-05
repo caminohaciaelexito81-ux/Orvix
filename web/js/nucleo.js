@@ -200,8 +200,16 @@ X.pedir = (titulo, valor = '', etiqueta = '') => new Promise(ok => {
 
 const MARCA = '<div class="marca"><i>O</i><div><b>ORVIX QR</b><small>CRM DE WHATSAPP</small></div></div>';
 
+// Panel publicado aparte (Vercel o tu dominio): usa el motor de config.js sin pedirlo.
+// En la PC (localhost) o cuando el propio motor sirve el panel, se usa la misma dirección.
+function motorPorDefecto() {
+  const m = String(window.ORVIX_MOTOR || '').trim().replace(/\/+$/, '');
+  if (!m || /^(localhost|127\.|\[::1\])/.test(location.hostname) || location.origin === m) return '';
+  return m;
+}
+
 X.arrancar = async () => {
-  X.base = guardado.leer('xv_motor');
+  X.base = guardado.leer('xv_motor') || motorPorDefecto();
   X.token = guardado.leer('xv_token');
   X.botId = guardado.leer('xv_bot');
   let estado = null;
