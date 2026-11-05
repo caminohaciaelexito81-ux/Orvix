@@ -42,7 +42,7 @@ esperar() {
   local url; url=$(direccion "$1")
   printf 'Instalando en el servidor (de 5 a 10 minutos)'
   for _ in $(seq 1 100); do
-    if curl -sf -m 5 "$url/api/estado" | grep -q xventas; then echo; return 0; fi
+    if curl -sf -m 5 "$url/api/estado" | grep xventas >/dev/null; then echo; return 0; fi
     printf '.'; sleep 10
   done
   echo
@@ -66,7 +66,7 @@ buscar_respaldo() { ls -t "$HOME"/orvix-respaldo*.tar.gz 2>/dev/null | head -n 1
 subir_datos() {
   local i="$1" archivo="$2"
   [ -f "$archivo" ] || { rojo "No encuentro el respaldo. Súbelo a la Cloud Shell (menú ⚙ o ☰ de la ventana → Cargar / Upload) y vuelve a pegar el comando."; return 1; }
-  if ! tar -tzf "$archivo" 2>/dev/null | grep -qE '^(\./)?db\.json$'; then
+  if ! tar -tzf "$archivo" 2>/dev/null | grep -E '^(\./)?db\.json$' >/dev/null; then
     rojo "El archivo $(basename "$archivo") no parece un respaldo de ORVIX QR (no tiene db.json)."
     return 1
   fi
@@ -169,7 +169,7 @@ verde "3/5 Preparando la llave para entrar al servidor…"
 mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
 [ -f "$LLAVE" ] || ssh-keygen -q -t rsa -b 4096 -N '' -C orvix -f "$LLAVE"
 
-CODIGO=$(tr -dc 'A-HJ-NP-Z2-9' </dev/urandom | head -c 8)
+CODIGO=""; ALFA=ABCDEFGHJKLMNPQRSTUVWXYZ23456789; for _ in 1 2 3 4 5 6 7 8; do CODIGO+=${ALFA:RANDOM%${#ALFA}:1}; done
 DATOS_INICIO=$(mktemp)
 {
   echo '#!/bin/bash'
@@ -206,11 +206,11 @@ for FORMA in VM.Standard.A1.Flex VM.Standard.E2.1.Micro; do
         --boot-volume-size-in-gbs 50 --ssh-authorized-keys-file "$LLAVE.pub" --user-data-file "$DATOS_INICIO" \
         --freeform-tags "{\"orvix-codigo\":\"$CODIGO\"}" \
         --wait-for-state RUNNING --max-wait-seconds 900 2>&1); then
-      I=$(echo "$SALIDA" | grep -o 'ocid1\.instance\.[a-z0-9._-]*' | head -n 1)
+      I=$(echo "$SALIDA" | grep -o 'ocid1\.instance\.[a-z0-9._-]*' | head -n 1 || true)
       [ -n "$I" ] && break 2
     fi
-    if echo "$SALIDA" | grep -qi 'capacity'; then echo "   (Oracle no tiene cupo ahí, pruebo otro)"
-    elif echo "$SALIDA" | grep -qiE 'LimitExceeded|limit'; then echo "   (tu cuenta no permite ese tipo, pruebo otro)"
+    if echo "$SALIDA" | grep -i 'capacity' >/dev/null; then echo "   (Oracle no tiene cupo ahí, pruebo otro)"
+    elif echo "$SALIDA" | grep -iE 'LimitExceeded|limit' >/dev/null; then echo "   (tu cuenta no permite ese tipo, pruebo otro)"
     else echo "$SALIDA" | tail -n 5; fi
   done
 done
