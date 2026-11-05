@@ -10,6 +10,8 @@
 #
 # Usa el servidor gratis de Google (e2-micro en Iowa, disco estándar de 30 GB).
 set -euo pipefail
+# Sin preguntas ocultas de gcloud (si la API no está activa, preguntaba en silencio y parecía colgado).
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 NOMBRE=orvix-crm
 ZONA=us-central1-a
