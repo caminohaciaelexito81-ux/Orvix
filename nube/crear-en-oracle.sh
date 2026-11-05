@@ -132,7 +132,7 @@ INSTALADOR="$DIR/instalar-oracle.sh"
 if [ ! -f "$INSTALADOR" ]; then
   INSTALADOR=$(mktemp)
   AUT=(); [ -n "$TOKEN" ] && AUT=(-H "Authorization: Bearer $TOKEN")
-  curl -fsSL "${AUT[@]}" "https://raw.githubusercontent.com/$REPO/HEAD/nube/instalar-oracle.sh" -o "$INSTALADOR" \
+  curl -fsSL "${AUT[@]}" "https://raw.githubusercontent.com/$REPO/HEAD/nube/instalar-oracle.sh?v=$(date +%s)" -o "$INSTALADOR" \
     || { rojo "No pude descargar nube/instalar-oracle.sh de github.com/$REPO. ¿Subiste la carpeta nube nueva?"; exit 1; }
 fi
 
